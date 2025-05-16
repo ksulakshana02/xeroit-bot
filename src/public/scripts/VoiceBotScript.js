@@ -78,17 +78,9 @@ function updatePlaceholder() {
     const questionInput = document.getElementById("question");
     const assistantText = document.querySelector(".assistant-name");
     const statusText = document.querySelector(".assistant-status");
-    const chatLang = sessionStorage.getItem("selectedLanguage") || "Spanish";
-    if (chatLang === "Spanish") {
-        assistantText.textContent = "Asistente de JN Marketing Strategy";
-        statusText.textContent = "En línea";
-    } else {
-        assistantText.textContent = "JN Marketing Strategy Assistant";
-        statusText.textContent = "Online";
-    }
-    questionInput.placeholder = chatLang === "Spanish"
-        ? "Escribe un mensaje aquí..."
-        : "Type a message here...";
+    assistantText.textContent = "Xeroit Assistant";
+    statusText.textContent = "Online";
+    questionInput.placeholder = "Type a message here...";
 }
 
 
@@ -103,21 +95,7 @@ window.addEventListener("storage", function (event) {
 function handleErrorMessage(error) {
     const responseDiv = document.getElementById("response");
     // const chatLang = sessionStorage.getItem("selectedLanguage");
-    const chatLang = sessionStorage.getItem("selectedLanguage") || "Spanish";
-
-    let errorMessage = "<p class='error-message'>The allocated number of tokens are over, please ask the administrator to add more tokens to the system.</p>";
-
-    if (chatLang === "Spanish") {
-        errorMessage = "<p class='error-message'>El número de tokens asignado ha sido superado, por favor pida al administrador que añada más tokens al sistema.</p>";
-    } else if (
-        error.message ===
-        "The allocated number of tokens are over, please ask the administrator to add more tokens to the system."
-    ) {
-        errorMessage =
-            "<p>The allocated number of tokens are over, please ask the administrator to add more tokens to the system.</p>";
-    }
-
-    responseDiv.innerHTML = errorMessage;
+    responseDiv.innerHTML = "<p class='error-message'>The allocated number of tokens are over, please ask the administrator to add more tokens to the system.</p>";
 }
 
 
@@ -135,16 +113,9 @@ function resetChatTimeout() {
 // Alert - handle chat end
 function showEndChatAlert() {
     // const chatLanguage = sessionStorage.getItem("selectedLanguage");
-    const chatLanguage = sessionStorage.getItem("selectedLanguage") || "Spanish";
-    const messageYes = chatLanguage === "Spanish"
-        ? "Sí"
-        : "Yes";
-    const messageCancel = chatLanguage === "Spanish"
-        ? "Cancelar"
-        : "Cancel";
-    const messageInactive = chatLanguage === "Spanish"
-        ? "Parece que no has enviado ningún mensaje durante un tiempo. ¿Quieres finalizar el chat?"
-        : "Are you sure you want to close this chat? Do you want to end the chat?";
+    const messageYes = "Yes";
+    const messageCancel = "Cancel";
+    const messageInactive = "Are you sure you want to close this chat? Do you want to end the chat?";
     if (!endChatAlertShown) {
         endChatAlertShown = true;
 
@@ -206,7 +177,7 @@ function showEndChatAlertAgent() {
 function showEndChatAlertBot() {
     // const chatLanguage = sessionStorage.getItem("selectedLanguage");
 
-    const messageYes ="Yes";
+    const messageYes = "Yes";
     const messageCancel = "Cancel";
     const messageEndChat = "Are you sure you want to close this chat? Do you want to end the chat?";
 
@@ -390,7 +361,7 @@ async function sendLeadDataToAPI() {
 
     const phoneErrorMessage = "Please enter a valid phone number (10 digits).";
 
-    const emailErrorMessage ="Please enter a valid email address.";
+    const emailErrorMessage = "Please enter a valid email address.";
 
     const successMessage = "Prospect created successfully!";
 
@@ -725,18 +696,18 @@ document
         showFormOnChatLoad(messageDiv, data);
     });
 
-document
-    .getElementById("changeToSpanishButton")
-    .addEventListener("click", function () {
-        sessionStorage.setItem("selectedLanguage", "Spanish");
-        appendLanguageMessage("Por favor haga su pregunta en español.");
-        updatePlaceholder();
-
-        const messageDiv = document.createElement("div");
-        document.getElementById("response").appendChild(messageDiv);
-        const data = {};
-        showFormOnChatLoad(messageDiv, data);
-    });
+// document
+//     .getElementById("changeToSpanishButton")
+//     .addEventListener("click", function () {
+//         sessionStorage.setItem("selectedLanguage", "Spanish");
+//         appendLanguageMessage("Por favor haga su pregunta en español.");
+//         updatePlaceholder();
+//
+//         const messageDiv = document.createElement("div");
+//         document.getElementById("response").appendChild(messageDiv);
+//         const data = {};
+//         showFormOnChatLoad(messageDiv, data);
+//     });
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -762,7 +733,7 @@ function showFormOnChatLoad(messageDiv, data) {
     if (!userData) {
         // const chatLang = sessionStorage.getItem("selectedLanguage");
         const initialPrompt = `Please share your contact information, or feel free to continue chatting if you’d like to provide more details. \n
-Help Us Serve You Better: Your Details`;
+Help Us Serve You Better: Your Details`;
 
         if (showFormOneTime === false) {
             fillAllDataFormOnLoad(messageDiv, initialPrompt, data);
