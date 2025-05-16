@@ -313,7 +313,8 @@ export const chatResponseTrigger = async (req: RequestWithChatId, res: Response)
         const results: string[] = [];
         queryResponse.matches.forEach((match: { metadata: { text: any; }; }) => {
             if (match.metadata) {
-                const result = `Content: ${match.metadata.text} \n \n `;
+                const cleanText = cleanMarkdown(match.metadata.text);
+                const result = `Content: ${cleanText} \n \n `;
                 results.push(result);
             }
         });
@@ -372,19 +373,24 @@ function updateUserMessage(chatHistory: OpenAIMessage[], userQuestion: string) {
     }
 }
 
+function cleanMarkdown(text: string): string {
+    return text
+        .replace(/#{1,6}\s*/g, "") // Remove Markdown headers (e.g., ###)
+        .replace(/[-*+]\s/g, "") // Remove bullet points
+        .replace(/\*\*([^*]+)\*\*/g, "$1") // Remove bold (e.g., **text**)
+        .replace(/__([^_]+)__/g, "$1") // Remove bold (e.g., __text__)
+        .replace(/\*([^*]+)\*/g, "$1") // Remove italics (e.g., *text*)
+        .replace(/_([^_]+)_/g, "$1") // Remove italics (e.g., _text_)
+        .replace(/^\s+|\s+$/g, "") // Trim whitespace
+        .replace(/\n+/g, " "); // Replace newlines with spaces
+}
+
 function formatChatHistory(chatHistory: OpenAIMessage[], context: string, clientDetailsSubmitStatus: boolean, userQuestion: string): OpenAIMessage[] {
-    const message1 = "Sorry, no information was found in the provided context.";
-    const message2 = "Sorry, I can't provide that information.";
 
     console.log("clientDetailsSubmitStatus:", clientDetailsSubmitStatus);
     const conversationHistory = chatHistory
         .filter(msg => msg.role !== "system")
         .slice(-5);
-
-    // const sysPrompt: OpenAIMessage = {
-    //     role: "system",
-    //     content: 'You are a helpful chatbot for Xeroit. Respond only using the provided context from our records. Do not generate answers from external knowledge or assumptions. Maintain a smooth and helpful experience for the user at all times.',
-    // };
 
     const sysPrompt: OpenAIMessage = {
         role: "system",
@@ -393,9 +399,10 @@ function formatChatHistory(chatHistory: OpenAIMessage[], context: string, client
 1. ONLY use information from the "RETRIEVED INFORMATION" section above
 2. If no relevant information exists, respond with: "I don't have access to that specific information."
 3. Verify every fact against the provided context before responding
-4. Structure responses with clear headings and bullet points when appropriate
+4. Use plain, conversational text without any Markdown formatting (e.g., no headers, bullets, bold, or code).
 5. Maintain professional tone while being concise and helpful
 6. For technical questions, provide step-by-step explanations when relevant
+7. For casual greetings like "hi" or "hello," respond with: "Hello! I'm XeroitBot, here to help with your questions about Xeroit. What would you like to know?"
 
 Current User Question: "${userQuestion}"
 
