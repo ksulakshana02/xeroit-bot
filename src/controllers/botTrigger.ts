@@ -311,9 +311,9 @@ export const chatResponseTrigger = async (req: RequestWithChatId, res: Response)
         console.log("Pinecone query results:", queryResponse);
 
         const results: string[] = [];
-        queryResponse.matches.forEach((match: { metadata: { Title: any; Text: any; }; }) => {
-            if (match.metadata && typeof match.metadata.Title === "string") {
-                const result = `Title: ${match.metadata.Title}, \n  Content: ${match.metadata.Text} \n \n `;
+        queryResponse.matches.forEach((match: { metadata: { text: any; }; }) => {
+            if (match.metadata) {
+                const result = `Content: ${match.metadata.text} \n \n `;
                 results.push(result);
             }
         });
@@ -330,7 +330,7 @@ export const chatResponseTrigger = async (req: RequestWithChatId, res: Response)
             messages: chatHistory,
             model: "gpt-4o-mini",
             max_tokens: 180,
-            temperature: 0.2,
+            temperature: 0,
         });
 
         const botResponse = completion.choices[0]?.message.content?.trim() || "No response from model.";
@@ -381,9 +381,25 @@ function formatChatHistory(chatHistory: OpenAIMessage[], context: string, client
         .filter(msg => msg.role !== "system")
         .slice(-5);
 
+    // const sysPrompt: OpenAIMessage = {
+    //     role: "system",
+    //     content: 'You are a helpful chatbot for Xeroit. Respond only using the provided context from our records. Do not generate answers from external knowledge or assumptions. Maintain a smooth and helpful experience for the user at all times.',
+    // };
+
     const sysPrompt: OpenAIMessage = {
         role: "system",
-        content: 'You are a helpful chatbot for Xeroit. Respond only using the provided context from our records. Do not generate answers from external knowledge or assumptions. Maintain a smooth and helpful experience for the user at all times.',
+        content: `You are XeroitBot, the official AI assistant for Xeroit. Follow these strict guidelines:
+
+1. ONLY use information from the "RETRIEVED INFORMATION" section above
+2. If no relevant information exists, respond with: "I don't have access to that specific information."
+3. Verify every fact against the provided context before responding
+4. Structure responses with clear headings and bullet points when appropriate
+5. Maintain professional tone while being concise and helpful
+6. For technical questions, provide step-by-step explanations when relevant
+
+Current User Question: "${userQuestion}"
+
+Context Used: ${context}`
     };
 
     return [sysPrompt, ...conversationHistory];
